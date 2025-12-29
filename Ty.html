@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ztrapface GSN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+
+body{
+  height:100vh;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:white;
+}
+
+.card{
+  width:350px;
+  background:#111;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  background:#f59e0b;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.hidden{display:none;}
+.error{color:red;margin-top:10px;}
+
+a{
+  display:block;
+  margin-top:15px;
+  padding:12px;
+  background:#222;
+  border-radius:8px;
+  color:#f59e0b;
+  text-decoration:none;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIGN UP -->
+<div class="card" id="signupBox">
+  <h2>Create Account</h2>
+  <input type="text" id="su_name" placeholder="Full Name">
+  <input type="text" id="su_username" placeholder="Username">
+  <input type="email" id="su_email" placeholder="Email">
+  <input type="password" id="su_password" placeholder="Password">
+  <button type="button" onclick="signup()">Sign Up</button>
+  <div class="error" id="signupMsg"></div>
+</div>
+
+<!-- LOGIN -->
+<div class="card hidden" id="loginBox">
+  <h2>Login</h2>
+  <input type="text" id="li_user" placeholder="Username or Email">
+  <input type="password" id="li_pass" placeholder="Password">
+  <button type="button" onclick="login()">Login</button>
+  <div class="error" id="loginMsg"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="card hidden" id="dashboard">
+  <h2>Ztrapface GSN</h2>
+  <p>Official Artist Links</p>
+
+  <a href="https://tiktok.com/@ztrapfacegsn" target="_blank">🔥 TikTok</a>
+  <a href="https://audiomack.com/ztrapface-Gsn" target="_blank">🎧 Audiomack</a>
+
+  <button type="button" onclick="logout()">Logout</button>
+</div>
+
+<script>
+function signup(){
+  const name = document.getElementById("su_name").value.trim();
+  const username = document.getElementById("su_username").value.trim();
+  const email = document.getElementById("su_email").value.trim();
+  const password = document.getElementById("su_password").value.trim();
+
+  if(name === "" || username === "" || email === "" || password === ""){
+    signupMsg.innerText = "❌ Fill all fields";
+    return;
+  }
+
+  const userData = {name, username, email, password};
+  localStorage.setItem("userData", JSON.stringify(userData));
+  localStorage.setItem("loginTime", Date.now());
+
+  showDashboard();
+}
+
+function login(){
+  const savedUser = JSON.parse(localStorage.getItem("userData"));
+  const user = document.getElementById("li_user").value.trim();
+  const pass = document.getElementById("li_pass").value.trim();
+
+  if(!savedUser){
+    loginMsg.innerText = "No account found";
+    return;
+  }
+
+  if(
+    (user === savedUser.username || user === savedUser.email) &&
+    pass === savedUser.password
+  ){
+    localStorage.setItem("loginTime", Date.now());
+    showDashboard();
+  }else{
+    loginMsg.innerText = "❌ Wrong details";
+  }
+}
+
+// AUTO CHECK ON LOAD
+window.onload = function(){
+  const savedUser = JSON.parse(localStorage.getItem("userData"));
+  const loginTime = localStorage.getItem("loginTime");
+
+  if(loginTime && Date.now() - loginTime < 60000){
+    showDashboard();
+  }else if(savedUser){
+    signupBox.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+  }
+};
+
+function showDashboard(){
+  signupBox.classList.add("hidden");
+  loginBox.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+}
+
+function logout(){
+  localStorage.removeItem("loginTime");
+  location.reload();
+}
+</script>
+
+</body>
+</html>
